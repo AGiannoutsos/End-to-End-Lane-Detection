@@ -198,4 +198,8 @@ class Pytorch_Dataset(torch.utils.data.Dataset):
         return self.dataset_size
 
     def __getitem__(self, index):
-        return torch.load("%s/data_%d.pt"%(self.directory,index)), torch.load("%s/label_%d.pt"%(self.directory,index))
+        data  = torch.load("%s/data_%d.pt"%(self.directory,index))
+        label = torch.load("%s/label_%d.pt"%(self.directory,index))
+        # convert labels to [0,1]
+        label = torch.where(label > label.mean(), 1.0, 0.0)
+        return data, label
