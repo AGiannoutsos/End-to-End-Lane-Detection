@@ -203,8 +203,7 @@ def image2grid(images, texts, grid):
     # image offset
     x_offset = -60
     fontScale = 0.4        
-    fontScale = 0.6
-    thickness = 2
+    thickness = 1
     
     imgmatrix = np.zeros((img_h * h + m_y * (h - 1) + m_y, img_w * w + m_x * (w - 1), img_c), np.uint8)
     imgmatrix.fill(255)    
