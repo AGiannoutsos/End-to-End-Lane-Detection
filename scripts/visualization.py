@@ -295,9 +295,92 @@ def grid_image_detector_creator(file_name,
 
     cv2.imwrite(file_name, frame) 
 
+# handle different dataset between torch and cv2
+def torch_grid_video_detector_creator(file_name,
+                  detectors,
+                  texts,
+                  dataset_images, 
+                  start_frame, 
+                  frames,
+                  grid=(2,2), 
+                  labels=False, 
+                  fps=24, 
+                  overlay_opacity=0.2):
+    
+    images = [torch_model_to_cv2(dataset_images[start_frame][0]) for image in range(len(detectors))]
+    grid_frame = image2grid(images, texts, grid)
+    height, width, channels = grid_frame.shape
 
-def torch_imshow(iamge):
-    cv2_imshow(iamge.permute(1, 2, 0).detach().numpy())
+    fourcc = cv2.VideoWriter_fourcc(*'DIVX')
+    out = cv2.VideoWriter(file_name+".avi", fourcc, fps, (width,height))
+
+    for i in range(start_frame, start_frame+frames):
+        # write video
+        images = [torch_model_to_cv2(dataset_images[i][0]) for image in range(len(detectors))]
+        grid_frame = image2grid(images, texts, grid)
+
+        # overlay detected lines
+        detected_images = [detector.get_output(dataset_images[i][0].to(device)) for detector in detectors]
+        # color the results
+        for detected_image in detected_images:
+            detected_image[:,:,1]=1
+            detected_image[:,:,0]=1
+        detected_grid_frame = image2grid(detected_images, texts, grid)
+
+        frame = cv2.addWeighted(grid_frame, 1, detected_grid_frame, 1, 0)
+
+        # if display overlay labels
+        if labels:
+            labels_images = [torch_model_to_cv2(dataset_images[i][1]) for image in range(len(detectors))]
+            labels_grid_frame = image2grid(labels_images, texts, grid)
+            frame = cv2.addWeighted(frame, 1, labels_grid_frame, 1, 0)
+
+        out.write(frame) 
+
+    # save file
+    out.release()
+
+
+# handle different dataset between torch and cv2
+def torch_grid_image_detector_creator(file_name,
+                  detectors,
+                  texts,
+                  dataset_images, 
+                  start_frame, 
+                  grid=(2,2), 
+                  labels=False, 
+                  fps=24, 
+                  overlay_opacity=0.2):
+    
+    images = [torch_model_to_cv2(dataset_images[start_frame][0]) for image in range(len(detectors))]
+    grid_frame = image2grid(images, texts, grid)
+    height, width, channels = grid_frame.shape
+
+    images = [torch_model_to_cv2(dataset_images[start_frame][0]) for image in range(len(detectors))]
+    grid_frame = image2grid(images, texts, grid)
+
+    # overlay detected lines
+    detected_images = [detector.get_output(dataset_images[start_frame][0].to(device)) for detector in detectors]
+    # color the results
+    for detected_image in detected_images:
+        detected_image[:,:,1]=1
+        detected_image[:,:,0]=1
+    detected_grid_frame = image2grid(detected_images, texts, grid)
+
+    frame = cv2.addWeighted(grid_frame, 1, detected_grid_frame, 1, 0)
+
+    # if display overlay labels
+    if labels:
+        labels_images = [torch_model_to_cv2(dataset_images[start_frame][1]) for image in range(len(detectors))]
+        labels_grid_frame = image2grid(labels_images, texts, grid)
+        frame = cv2.addWeighted(frame, 1, labels_grid_frame, 1, 0)
+
+    # save file
+    cv2.imwrite(file_name, frame)
+
+
+def torch_imshow(image):
+    cv2_imshow(image.permute(1, 2, 0).detach().numpy())
     
 def torch_model_to_cv2(image, range=255):
     # check if is not 3channel
