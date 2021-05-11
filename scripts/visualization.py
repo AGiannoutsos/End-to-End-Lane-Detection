@@ -98,10 +98,7 @@ def video_creator(file_name,
                   frames, 
                   labels=False, 
                   fps=24, 
-                  overlay_opacity=0.2):
-    # sort image paths
-    # image_paths.sort(key=lambda x: (x.split("/")[-3], int(x.split("/")[-2]), int(x.split("/")[-1].split(".")[0])) )
-    
+                  overlay_opacity=0.2):    
 
     frame = dataset_images[start_frame][0]
     # frame = np.array(frame, dtype=np.float32)
@@ -113,12 +110,9 @@ def video_creator(file_name,
     for i in range(start_frame, start_frame+frames):
         # write video
         frame = dataset_images[i][0]
-        # frame = np.array(frame, dtype=np.float32)
         # if display overlay lables
         if labels:
-            # frame = frame + np.array(dataset_images[i][1], dtype=np.float32) * overlay_opacity
             frame = cv2.addWeighted(frame, 1, dataset_images[i][1], 1, 0)
-            # frame = np.array(frame, dtype=np.float32)
         out.write(frame) 
 
     # save file
@@ -132,10 +126,7 @@ def video_detector_creator(file_name,
                   frames, 
                   labels=False, 
                   fps=24, 
-                  overlay_opacity=0.2):
-    # sort image paths
-    # image_paths.sort(key=lambda x: (x.split("/")[-3], int(x.split("/")[-2]), int(x.split("/")[-1].split(".")[0])) )
-    
+                  overlay_opacity=0.2):    
 
     frame = dataset_images[start_frame][0]
     # frame = np.array(frame, dtype=np.float32)
@@ -154,9 +145,7 @@ def video_detector_creator(file_name,
 
         # if display overlay labels
         if labels:
-            # frame = frame + np.array(dataset_images[i][1], dtype=np.float32) * overlay_opacity
             frame = cv2.addWeighted(frame, 1, dataset_images[i][1], 1, 0)
-            # frame = np.array(frame, dtype=np.float32)
 
         out.write(frame) 
 
@@ -172,13 +161,9 @@ def torch_video_detector_creator(file_name,
                   frames, 
                   labels=False, 
                   fps=24, 
-                  overlay_opacity=0.2):
-    # sort image paths
-    # image_paths.sort(key=lambda x: (x.split("/")[-3], int(x.split("/")[-2]), int(x.split("/")[-1].split(".")[0])) )
-    
+                  overlay_opacity=0.2):    
 
     frame = dataset_images[start_frame][0]
-    # frame = np.array(frame, dtype=np.float32)
     height, width, channels = frame.shape
 
     fourcc = cv2.VideoWriter_fourcc(*'DIVX')
@@ -194,9 +179,7 @@ def torch_video_detector_creator(file_name,
 
         # if display overlay labels
         if labels:
-            # frame = frame + np.array(dataset_images[i][1], dtype=np.float32) * overlay_opacity
             frame = cv2.addWeighted(frame, 1, dataset_images[i][1], 1, 0)
-            # frame = np.array(frame, dtype=np.float32)
 
         out.write(frame) 
 
@@ -212,21 +195,22 @@ def image2grid(images, texts, grid):
     h = grid[1]
     n = w*h
     img_h, img_w, img_c = images[0].shape
-    m_x = 10
-    m_y = 100
+    m_x = 8
+    m_y = 40
 
     font = cv2.FONT_HERSHEY_SIMPLEX
   
     # image offset
-    x_offset = 0
-    fontScale = 1        
+    x_offset = -60
+    fontScale = 0.4        
+    fontScale = 0.6
     thickness = 2
     
-    imgmatrix = np.zeros((img_h * h + m_y * (h - 1), img_w * w + m_x * (w - 1), img_c), np.uint8)
+    imgmatrix = np.zeros((img_h * h + m_y * (h - 1) + m_y, img_w * w + m_x * (w - 1), img_c), np.uint8)
     imgmatrix.fill(255)    
 
-    positions = itertools.product(range(w), range(h))
-    for (x_i, y_i), img, text in zip(positions, images, texts):
+    positions = itertools.product(range(h), range(w))
+    for (y_i, x_i), img, text in zip(positions, images, texts):
         x = x_i * (img_w + m_x)
         y = y_i * (img_h + m_y)
         # add text
@@ -247,10 +231,8 @@ def grid_video_detector_creator(file_name,
                   labels=False, 
                   fps=24, 
                   overlay_opacity=0.2):
-    # sort image paths
-    # image_paths.sort(key=lambda x: (x.split("/")[-3], int(x.split("/")[-2]), int(x.split("/")[-1].split(".")[0])) )
     
-    images = [data[start_frame][0] for image in range(len(detectors))]
+    images = [dataset_images[start_frame][0] for image in range(len(detectors))]
     grid_frame = image2grid(images, texts, grid)
     height, width, channels = grid_frame.shape
 
@@ -259,29 +241,60 @@ def grid_video_detector_creator(file_name,
 
     for i in range(start_frame, start_frame+frames):
         # write video
-        # frame = dataset_images[i][0]
-        images = [data[i][0] for image in range(len(detectors))]
+        images = [dataset_images[i][0] for image in range(len(detectors))]
         grid_frame = image2grid(images, texts, grid)
 
         # overlay detected lines
-        # detected_lines = detector(frame)
-        detected_images = [detector.get_output(data[i][0]) for image in range(len(detectors))]
+        detected_images = [detector.get_output(dataset_images[i][0]) for detector in detectors]
         detected_grid_frame = image2grid(detected_images, texts, grid)
 
         frame = cv2.addWeighted(grid_frame, 1, detected_grid_frame, 1, 0)
 
         # if display overlay labels
         if labels:
-            # frame = frame + np.array(dataset_images[i][1], dtype=np.float32) * overlay_opacity
-            labels_images = [data[i][1] for image in range(len(detectors))]
+            labels_images = [dataset_images[i][1] for image in range(len(detectors))]
             labels_grid_frame = image2grid(labels_images, texts, grid)
             frame = cv2.addWeighted(frame, 1, labels_grid_frame, 1, 0)
-            # frame = np.array(frame, dtype=np.float32)
 
         out.write(frame) 
 
     # save file
     out.release()
+
+# Overlay images on a grid with predicted labels from a detector
+def grid_image_detector_creator(file_name,
+                  detectors,
+                  texts,
+                  dataset_images, 
+                  start_frame, 
+                  grid=(2,2), 
+                  labels=False, 
+                  fps=24, 
+                  overlay_opacity=0.2):
+    
+    images = [dataset_images[start_frame][0] for image in range(len(detectors))]
+    grid_frame = image2grid(images, texts, grid)
+    height, width, channels = grid_frame.shape
+
+
+    # write image
+    images = [dataset_images[start_frame][0] for image in range(len(detectors))]
+    grid_frame = image2grid(images, texts, grid)
+
+    # overlay detected lines
+    detected_images = [detector.get_output(dataset_images[start_frame][0]) for detector in detectors]
+    detected_grid_frame = image2grid(detected_images, texts, grid)
+
+    frame = cv2.addWeighted(grid_frame, 1, detected_grid_frame, 1, 0)
+
+    # if display overlay labels
+    if labels:
+        labels_images = [dataset_images[start_frame][1] for image in range(len(detectors))]
+        labels_grid_frame = image2grid(labels_images, texts, grid)
+        frame = cv2.addWeighted(frame, 1, labels_grid_frame, 1, 0)
+
+    cv2.imwrite(file_name, frame) 
+
 
 def torch_imshow(iamge):
     cv2_imshow(iamge.permute(1, 2, 0).detach().numpy())

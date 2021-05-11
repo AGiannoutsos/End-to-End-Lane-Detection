@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torchvision
 from torch.utils.data import DataLoader
+import numpy as np
 import os
 import ast
 import glob

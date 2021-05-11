@@ -14,6 +14,7 @@ class Classic_Line_Detector():
         self.high_threshold = high_threshold
         self.gaussian_kernel = gaussian_kernel
         self.triangle_top_factor = triangle_top_factor
+        self.title = "Low:%s High:%s" %(self.low_threshold, self.high_threshold)
 
     def get_output(self, image):
         return self(image)
@@ -28,7 +29,6 @@ class Classic_Line_Detector():
         # Gaussian smoothing
         blur_image = cv2.GaussianBlur(grey_image, (self.gaussian_kernel, self.gaussian_kernel),0)
         # cv2_imshow(blur_image)
-
 
         # Canny edge detection
         edges_image = cv2.Canny(blur_image, self.low_threshold, self.high_threshold)
@@ -57,21 +57,10 @@ class Classic_Line_Detector():
         points = np.array( [[ (image_shape[1]/2, image_shape[0]*self.triangle_top_factor), (0, image_shape[0]), (image_shape[1], image_shape[0]) ]], dtype=np.int32)
         triangle_mask = cv2.fillPoly(triangle_mask, points, (255, 255, 255))
         # cv2_imshow(triangle_mask)
-        # print(triangle_mask.shape)
         
         # Masking
         masked_line_image = cv2.bitwise_and(line_image, line_image, mask=triangle_mask)
         # cv2_imshow(masked_line_image)
-        # print(masked_line_image.shape)
 
-
-        # # Create a "color" binary image to combine with line image
-        # color_edges = np.dstack((masked_edges, masked_edges, masked_edges)) 
-        # cv2_imshow(line_image)
-        # cv2_imshow(color_edges)
-
-        # # Draw the lines on the edge image
-        # combo = cv2.addWeighted(color_edges, 1, line_image, 1, 0) 
-        # cv2_imshow(combo)
 
         return masked_line_image
