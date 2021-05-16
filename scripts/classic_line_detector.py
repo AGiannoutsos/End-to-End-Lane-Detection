@@ -19,6 +19,17 @@ class Classic_Line_Detector():
     def get_output(self, image):
         return self(image)
 
+    def make_points(self, image, average): 
+        try:
+            slope, y_int = average 
+        except:
+            slope, y_int = 1, 0
+        y1 = image.shape[0]
+        y2 = int(y1 * (2/5))
+        x1 = int((y1 - y_int) // slope)
+        x2 = int((y2 - y_int) // slope)
+        return np.array([x1, y1, x2, y2])  
+
     def __call__(self, image):
         image_shape = image.shape
 
@@ -34,6 +45,15 @@ class Classic_Line_Detector():
         edges_image = cv2.Canny(blur_image, self.low_threshold, self.high_threshold)
         # cv2_imshow(edges_image)
 
+        # Masking the image
+        triangle_mask = np.zeros(image.shape[0:2], dtype="uint8")
+        points = np.array( [[ (image_shape[1]/2, image_shape[0]*self.triangle_top_factor), (0, image_shape[0]), (image_shape[1], image_shape[0]) ]], dtype=np.int32)
+        triangle_mask = cv2.fillPoly(triangle_mask, points, (255, 255, 255))
+        # cv2_imshow(triangle_mask)
+        
+        # Masking
+        masked_line_image = cv2.bitwise_and(edges_image, edges_image, mask=triangle_mask)
+        # cv2_imshow(masked_line_image)
 
         # Hough transform
         rho = 1
@@ -44,23 +64,32 @@ class Classic_Line_Detector():
         line_image = np.zeros(image.shape, dtype="uint8")
 
         # Run Hough on edge detected image
-        lines = cv2.HoughLinesP(edges_image, rho, theta, threshold, np.array([]), min_line_length, max_line_gap)
+        lines = cv2.HoughLinesP(masked_line_image, rho, theta, threshold, np.array([]), min_line_length, max_line_gap)
 
-        # Iterate over the output "lines" and draw lines on the blank
+        # Iterate over the output "lines"  and find the average slope of the lines
+        left = []
+        right = []
         for line in lines:
             for x1,y1,x2,y2 in line:
-                line_image = cv2.line(line_image,(x1,y1),(x2,y2),(0,0,255),10)
-        # cv2_imshow(line_image)
-
-        # Masking the image
-        triangle_mask = np.zeros(image.shape[0:2], dtype="uint8")
-        points = np.array( [[ (image_shape[1]/2, image_shape[0]*self.triangle_top_factor), (0, image_shape[0]), (image_shape[1], image_shape[0]) ]], dtype=np.int32)
-        triangle_mask = cv2.fillPoly(triangle_mask, points, (255, 255, 255))
-        # cv2_imshow(triangle_mask)
+                x1, y1, x2, y2 = line.reshape(4)
+                parameters = np.polyfit((x1, x2), (y1, y2), 1)
+                slope = parameters[0]
+                y_int = parameters[1]
+                if slope < 0:
+                    left.append((slope, y_int))
+                else:
+                    right.append((slope, y_int))
         
-        # Masking
-        masked_line_image = cv2.bitwise_and(line_image, line_image, mask=triangle_mask)
-        # cv2_imshow(masked_line_image)
+        # find the average slope and their lines
+        right_avg = np.average(right, axis=0)
+        left_avg = np.average(left, axis=0)
+        left_line = self.make_points(image, left_avg)
+        right_line = self.make_points(image, right_avg)
+        # draw the average lines
+        try:
+            line_image = cv2.line(line_image, (right_line[0], right_line[1]), (right_line[2], right_line[3]), (0,0,255),10)
+            line_image = cv2.line(line_image, (left_line[0], left_line[1]), (left_line[2], left_line[3]), (0,0,255),10)
+        except:
+            print("line not found")
 
-
-        return masked_line_image
+        return line_image
