@@ -18,6 +18,7 @@ Results of the **Classic lane detection methods** can be recreated here [![Open 
 
 Results of the **Convolutional Autoencoder methods** can be recreated here [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/AGiannoutsos/End-to-End-Lane-Detection/blob/main/autoencoder_detectors.ipynb)
 
+
 In both colabs it is required to clone this repository. All of the code needed is located in `./scripts`
 
 The results of the testing in both methods, with images and videos, can be found in `./results`
