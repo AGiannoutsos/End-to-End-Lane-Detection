@@ -53,6 +53,12 @@ From the training curve, we can see, with the exception of the simplest model wi
 ![training curve](https://github.com/AGiannoutsos/End-to-End-Lane-Detection/blob/main/results/autoencoder_models/validation_BCEloss_all.png)
 
 
+# Further Discussion
+When we compare the results of the two approaches, we can easily infer that the techniques of Convolutional Neural Networks are superior since they reliably predict the lines in ambient dynamics with many variations and are more noise resistant. 
+However, we could have made better predictions with the classical learning models if we had used a statistical approach with particle or Kalman filters.
+Furthermore, these predictions are more consistent since we know exactly what happens at every point of the algorithm, as opposed to the Convolutional Neural models, which operates like a black box.
+Convolutional Neural Networks continue to require a large amount of data and time to train, but as we have shown, there have been many discoveries to reduce this computational cost with smarter and more powerful architectures.
+As a result, the distinction between these two approaches can vary depending on the application and its particulars. 
 
 
 
