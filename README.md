@@ -20,6 +20,8 @@ Results of the **Convolutional Autoencoder methods** can be recreated here [![Op
 
 In both colabs it is required to clone this repository. All of the code needed is located in `./scripts`
 
+The results of the testing in both methods, with images and videos, can be found in `./results`
+
 ## Dataset
 The dataset used in the experiments is the [TuSimple dataset](https://github.com/TuSimple/tusimple-benchmark). TuSimple contains 6,408 road photos from US highways. The picture has a resolution of 1280x720. 
 The dataset sample set is made up of 3,626 images for training, 358 for validation, and 2,782 for testing, all of which are taken in various weather conditions. 
