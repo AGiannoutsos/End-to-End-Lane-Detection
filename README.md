@@ -16,7 +16,7 @@ Following an analysis of the model outputs, we evaluate the ability of the algor
 
 Results of the **Classic lane detection methods** can be recreated here [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/AGiannoutsos/End-to-End-Lane-Detection/blob/main/classic_detector.ipynb)
 
-Results of the **Convolutional Autoencoder methods** can be recreated here [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/AGiannoutsos/End-to-End-Lane-Detection/blob/main/autoencoder_detecotrs.ipynb)
+Results of the **Convolutional Autoencoder methods** can be recreated here [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/AGiannoutsos/End-to-End-Lane-Detection/blob/main/autoencoder_detectors.ipynb)
 
 In both colabs it is required to clone this repository. All of the code needed is located in `./scripts`
 
