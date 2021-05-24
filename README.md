@@ -23,6 +23,8 @@ In both colabs it is required to clone this repository. All of the code needed i
 
 The results of the testing in both methods, with images and videos, can be found in `./results`
 
+The detailed report with the experiments, the methods and the references can be found here [Report](https://github.com/AGiannoutsos/End-to-End-Lane-Detection/blob/main/report.pdf)
+
 ## Dataset
 The dataset used in the experiments is the [TuSimple dataset](https://github.com/TuSimple/tusimple-benchmark). TuSimple contains 6,408 road photos from US highways. The picture has a resolution of 1280x720. 
 The dataset sample set is made up of 3,626 images for training, 358 for validation, and 2,782 for testing, all of which are taken in various weather conditions. 
